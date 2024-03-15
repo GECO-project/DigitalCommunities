@@ -1,48 +1,24 @@
-import { createClient } from "../utils/supabase/server";
-import { cookies } from "next/headers";
+"use client";
 
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-}
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 
-export default async function Page() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+// Not used, for future implementation of authorization
 
-  // Get all communities from supabase
-  const { data: communities } = await supabase.from("communities").select();
+export default function Home() {
+  const router = useRouter();
 
-  // If communities is null, return an empty div
-  if (!communities) {
-    return <div>No communities found</div>;
-  }
+  useEffect(() => {
+    // If no user has been chosen set it as 1
+    const userIdCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_id"));
+    if (!userIdCookie) {
+      document.cookie = "user_id=1; path=/; max-age=31536000"; // max-age set to one year
+    }
 
-  // Get events for each community
-  const communitiesWithEvents = await Promise.all(
-    communities.map(async (community) => {
-      const { data: events } = await supabase
-        .from("events")
-        .select()
-        .eq("community_id", community.id);
-      return { ...community, events };
-    })
-  );
+    router.push("/discover");
+  }, []);
 
-  return (
-    <div>
-      {communitiesWithEvents.map((community) => (
-        <div key={community.id}>
-          <h2>{community.name}</h2>
-          {community.events.map((event: Event) => (
-            <div key={event.id}>
-              <h3>{event.title}</h3>
-              <p>{event.description}</p>
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+  return <></>;
 }
