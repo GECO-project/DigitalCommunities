@@ -12,33 +12,40 @@ export default function Page() {
   const [myEvents, setMyEvents] = useState<Event[]>([]);
   const [user, setUser] = useState<User>();
   const [userCommunities, setUserCommunities] = useState<Community[]>([]);
-  let userIdCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("user_id"));
-
-  if (!userIdCookie) {
-    document.cookie = "user_id=1; path=/; max-age=31536000"; // max-age set to one year
-    userIdCookie = "user_id=1";
-  }
-  const userId = parseInt(userIdCookie.split("=")[1], 10);
+  const [userId, setUserId] = useState<number>();
 
   useEffect(() => {
-    const fetchMyEvents = async () => {
-      const eventData = await getEventsForUser(userId);
-      setMyEvents(eventData);
-    };
-    const fetchUser = async () => {
-      const userData = await getUser(userId);
-      setUser(userData);
-    };
-    const fetchCommunities = async () => {
-      const communityData = await getCommunitiesForUser(userId);
-      setUserCommunities(communityData);
-    };
-    fetchMyEvents();
-    fetchUser();
-    fetchCommunities();
+    let userIdCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_id"));
+
+    if (!userIdCookie) {
+      document.cookie = "user_id=1; path=/; max-age=31536000"; // max-age set to one year
+      userIdCookie = "user_id=1";
+    }
+
+    setUserId(parseInt(userIdCookie.split("=")[1], 10));
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      const fetchMyEvents = async () => {
+        const eventData = await getEventsForUser(userId);
+        setMyEvents(eventData);
+      };
+      const fetchUser = async () => {
+        const userData = await getUser(userId);
+        setUser(userData);
+      };
+      const fetchCommunities = async () => {
+        const communityData = await getCommunitiesForUser(userId);
+        setUserCommunities(communityData);
+      };
+      fetchMyEvents();
+      fetchUser();
+      fetchCommunities();
+    }
+  }, [userId]);
 
   return (
     <div style={{ width: "90%", margin: "0 auto" }}>
