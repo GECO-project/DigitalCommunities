@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "../utils/supabase/server";
+import { createClient } from "../../utils/supabase/server";
 import { cookies } from "next/headers";
 
-export async function getCommunitiesForUser(userId: number) {
+export async function getCommunitiesForUser(userId:number) {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 

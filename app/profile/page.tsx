@@ -2,9 +2,9 @@
 
 import { Event, User, Community } from "../types";
 import { useState, useEffect } from "react";
-import { getEventsForUser } from "@/services/events";
-import { getUser } from "@/services/user";
-import { getCommunitiesForUser } from "@/services/communities";
+import { getEventsForUser } from "@/pages/api/events";
+import { getUser } from "@/pages/api/user";
+import { getCommunitiesForUser } from "@/pages/api/communities";
 import EventCard from "@/components/eventCard";
 import { TypographyH1, TypographyH4 } from "@/components/ui/typography";
 
@@ -19,12 +19,8 @@ export default function Page() {
       .split("; ")
       .find((row) => row.startsWith("user_id"));
 
-    if (!userIdCookie) {
-      document.cookie = "user_id=1; path=/; max-age=31536000"; // max-age set to one year
-      userIdCookie = "user_id=1";
-    }
-
-    setUserId(parseInt(userIdCookie.split("=")[1], 10));
+    let id = userIdCookie ? parseInt(userIdCookie.split("=")[1], 10) : -1;
+    setUserId(id);
   }, []);
 
   useEffect(() => {

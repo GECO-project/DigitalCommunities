@@ -1,7 +1,7 @@
 "use client";
 
 import { TypographyH1, TypographyH4 } from "@/components/ui/typography";
-import { getAllEvents } from "@/services/events";
+import { getAllEvents } from "@/pages/api/events";
 import { useEffect, useState } from "react";
 import EventCard from "@/components/eventCard";
 import { Event } from "../types";
