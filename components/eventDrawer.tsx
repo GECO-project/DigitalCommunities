@@ -8,11 +8,15 @@ import {
   DrawerClose
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Dispatch, SetStateAction } from "react";
+import {
+  isUserRegisteredForEvent,
+  unregisterFromEvent
+} from "@/pages/api/events";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Event } from "@/app/types";
 import { TypographyH3, TypographyH4, TypographyP } from "./ui/typography";
 import { ScrollArea } from "./ui/scroll-area";
-import { registerForEvent } from "@/services/events";
+import { registerForEvent } from "@/pages/api/events";
 
 interface EventDrawerProps {
   isOpen: boolean;
@@ -26,21 +30,30 @@ export default function EventDrawer({
   setIsOpen,
   event
 }: EventDrawerProps) {
-  let userIdCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("user_id"));
+  const [userId, setUserId] = useState<number>(-1);
+  const [isRegistered, setIsRegistered] = useState<boolean>(false);
 
-  if (!userIdCookie) {
-    document.cookie = "user_id=1; path=/; max-age=31536000"; // max-age set to one year
-    userIdCookie = "user_id=1";
-  }
+  useEffect(() => {
+    let userIdCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_id"));
 
-  const userId = parseInt(userIdCookie.split("=")[1], 10);
+    let id = userIdCookie ? parseInt(userIdCookie.split("=")[1], 10) : -1;
+    setUserId(id);
+    const fetchUser = async () => {
+      const userData = await isUserRegisteredForEvent(event.id, userId);
+      console.log("userData", userData);
+      setIsRegistered(userData);
+    };
+    fetchUser();
+  }, [event.id, userId]);
 
   const onSubmit = async () => {
-    console.log("onSubmit");
-    const res = await registerForEvent(event.id, userId);
-    console.log(res);
+    if (isRegistered) {
+      unregisterFromEvent(event.id, userId);
+    } else {
+      const res = await registerForEvent(event.id, userId);
+    }
   };
 
   return (
@@ -76,7 +89,11 @@ export default function EventDrawer({
         </div>
         <DrawerFooter>
           <DrawerClose asChild>
-            <Button onClick={onSubmit}>Anmäl</Button>
+            {isRegistered ? (
+              <Button variant="destructive">Avanmäl</Button>
+            ) : (
+              <Button onClick={onSubmit}>Anmäl</Button>
+            )}
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

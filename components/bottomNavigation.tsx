@@ -10,7 +10,9 @@ export default function BottomNavigation({}) {
     <div className="fixed bottom-0 w-full flex justify-around items-center border-t border-gray-200 p-4 bg-white">
       <Button
         variant="link"
-        className={pathname.startsWith("/discover") ? "font-bold" : ""}
+        className={
+          pathname && pathname.startsWith("/discover") ? "font-bold" : ""
+        }
         onClick={() => router.push("/discover")}
       >
         Hem
@@ -18,7 +20,9 @@ export default function BottomNavigation({}) {
       <Button variant="link">Grannskap</Button>
       <Button
         variant="link"
-        className={pathname.startsWith("/profile") ? "font-bold" : ""}
+        className={
+          pathname && pathname.startsWith("/profile") ? "font-bold" : ""
+        }
         onClick={() => router.push("/profile")}
       >
         Profil
