@@ -17,6 +17,7 @@ import { Event } from "@/app/types";
 import { TypographyH3, TypographyH4, TypographyP } from "./ui/typography";
 import { ScrollArea } from "./ui/scroll-area";
 import { registerForEvent } from "@/pages/api/events";
+import { useToast } from "@/components/ui/use-toast";
 
 interface EventDrawerProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function EventDrawer({
 }: EventDrawerProps) {
   const [userId, setUserId] = useState<number>(-1);
   const [isRegistered, setIsRegistered] = useState<boolean>(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     let userIdCookie = document.cookie
@@ -42,7 +44,6 @@ export default function EventDrawer({
     setUserId(id);
     const fetchUser = async () => {
       const userData = await isUserRegisteredForEvent(event.id, userId);
-      console.log("userData", userData);
       setIsRegistered(userData);
     };
     fetchUser();
@@ -50,9 +51,23 @@ export default function EventDrawer({
 
   const onSubmit = async () => {
     if (isRegistered) {
-      unregisterFromEvent(event.id, userId);
+      let res = await unregisterFromEvent(event.id, userId);
+      setIsRegistered(false);
+      if (res === true) {
+        toast({
+          title: "Ångrad anmälan",
+          description: "Du är inte längre anmäld till eventet"
+        });
+      }
     } else {
       const res = await registerForEvent(event.id, userId);
+      if (res === true) {
+        toast({
+          title: "Anmäld",
+          description: "Du är nu anmäld till eventet"
+        });
+      }
+      setIsRegistered(res);
     }
   };
 
@@ -90,7 +105,9 @@ export default function EventDrawer({
         <DrawerFooter>
           <DrawerClose asChild>
             {isRegistered ? (
-              <Button variant="destructive">Avanmäl</Button>
+              <Button onClick={onSubmit} variant="destructive">
+                Avanmäl
+              </Button>
             ) : (
               <Button onClick={onSubmit}>Anmäl</Button>
             )}

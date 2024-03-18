@@ -17,7 +17,15 @@ export default function BottomNavigation({}) {
       >
         Hem
       </Button>
-      <Button variant="link">Grannskap</Button>
+      <Button
+        variant="link"
+        className={
+          pathname && pathname.startsWith("/search") ? "font-bold" : ""
+        }
+        onClick={() => router.push("/search")}
+      >
+        Sök
+      </Button>
       <Button
         variant="link"
         className={
