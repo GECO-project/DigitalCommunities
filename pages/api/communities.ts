@@ -33,3 +33,19 @@ export async function getCommunitiesForUser(userId:number) {
 
   return communities;
 }
+
+export async function getAllCommunities() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: communities, error } = await supabase
+    .from("communities")
+    .select("*");
+
+  if (error) {
+    console.error("Error fetching communities:", error.message);
+    return [];
+  }
+
+  return communities;
+}
