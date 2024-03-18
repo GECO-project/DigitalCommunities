@@ -6,6 +6,7 @@ import { getEventsForUser } from "@/pages/api/events";
 import { getUser } from "@/pages/api/user";
 import { getCommunitiesForUser } from "@/pages/api/communities";
 import EventCard from "@/components/eventCard";
+import CommunityCard from "@/components/communityCard";
 import { TypographyH1, TypographyH4 } from "@/components/ui/typography";
 
 export default function Page() {
@@ -62,8 +63,7 @@ export default function Page() {
       </div>
       {userCommunities.map((community: Community) => (
         <div key={community.id}>
-          <div>{community.name}</div>
-          <div>{community.address}</div>
+          <CommunityCard community={community} />
         </div>
       ))}
     </div>
