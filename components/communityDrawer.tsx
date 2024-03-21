@@ -9,30 +9,30 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import {
-  isUserRegisteredForEvent,
-  unregisterFromEvent
-} from "@/pages/api/events";
+  getIsUserMemberOfCommunity,
+  registerForCommunity,
+  unregisterFromCommunity
+} from "@/pages/api/communities";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Event } from "@/app/types";
-import { TypographyH3, TypographyH4, TypographyP } from "./ui/typography";
+import { Community } from "@/app/types";
+import { TypographyH2, TypographyH4, TypographyP } from "./ui/typography";
 import { ScrollArea } from "./ui/scroll-area";
-import { registerForEvent } from "@/pages/api/events";
 import { useToast } from "@/components/ui/use-toast";
 
-interface EventDrawerProps {
+interface CommunityDrawerProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  event: Event;
+  community: Community;
   setDrawer: () => void;
 }
 
 export default function EventDrawer({
   isOpen,
   setIsOpen,
-  event
-}: EventDrawerProps) {
+  community
+}: CommunityDrawerProps) {
   const [userId, setUserId] = useState<number>(-1);
-  const [isRegistered, setIsRegistered] = useState<boolean>(false);
+  const [isMember, setIsMember] = useState<boolean>(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -43,72 +43,69 @@ export default function EventDrawer({
     let id = userIdCookie ? parseInt(userIdCookie.split("=")[1], 10) : -1;
     setUserId(id);
     const fetchUser = async () => {
-      const userData = await isUserRegisteredForEvent(event.id, userId);
-      setIsRegistered(userData);
+      const userData = await getIsUserMemberOfCommunity(community.id, userId);
+      setIsMember(userData);
     };
     fetchUser();
-  }, [event.id, userId]);
+  }, [community.id, userId]);
 
   const onSubmit = async () => {
-    if (isRegistered) {
-      let res = await unregisterFromEvent(event.id, userId);
-      setIsRegistered(false);
+    if (isMember) {
+      let res = await unregisterFromCommunity(community.id, userId);
+      setIsMember(false);
       if (res === true) {
         toast({
-          title: "Ångrad anmälan",
-          description: "Du är inte längre anmäld till eventet"
+          title: "Godkänd avanmälan",
+          description: "Du är inte längre medlem i " + community.name
         });
       }
     } else {
-      const res = await registerForEvent(event.id, userId);
+      const res = await registerForCommunity(community.id, userId);
       if (res === true) {
         toast({
-          title: "Anmäld",
-          description: "Du är nu anmäld till eventet"
+          title: "Godkänd anmälan",
+          description: "Du har nu gått med i " + community.name
         });
       }
-      setIsRegistered(res);
+      setIsMember(res);
     }
   };
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <DrawerContent className="flex flex-col justify-between max-h-[75vh]">
+      <DrawerContent className="flex flex-col justify-between min-h-[65vh] max-h-[70dvh]">
         <div className="overflow-auto">
           <DrawerHeader>
-            <div className="flex justify-between items-start">
+            <div className="flex items-center justify-center space-x-4 pt-12 ">
               <img
-                src={event.image}
-                alt="event image"
-                className="w-full h-40"
+                src=""
+                alt="img"
+                className="w-20 h-20 bg-yellow-100 rounded-full"
               />
+              <TypographyH2 text={community.name} />
             </div>
-            <DrawerTitle className="text-left mt-2">
-              <TypographyH3 text={event.title} />
-            </DrawerTitle>
-            <DrawerDescription className="text-left flex flex-col">
-              <div>{event.community_name}</div>
-              <div>{event.date}</div>
-              <div>{event.address}</div>
+            <DrawerDescription className="text-left flex flex-col pt-10">
+              <div>email.email@google.se</div>
+              <div>{community.address}</div>
             </DrawerDescription>
             <div className="text-left mb-12">
               <div className="mt-6">
-                <TypographyH4 text={"Info"} />
+                <TypographyH4 text={"Om"} />
               </div>
               <ScrollArea>
-                <TypographyP text={event.description} />
+                <TypographyP text={community.description} />
               </ScrollArea>
             </div>
           </DrawerHeader>
         </div>
         <DrawerFooter>
           <DrawerClose asChild>
-            {isRegistered ? (
+            {isMember ? (
               <Button onClick={onSubmit} variant="destructive">
-                Avanmäl
+                Gå ur {community.name}
               </Button>
             ) : (
-              <Button onClick={onSubmit}>Anmäl</Button>
+              <Button onClick={onSubmit}>Gå med {community.name}</Button>
             )}
           </DrawerClose>
         </DrawerFooter>

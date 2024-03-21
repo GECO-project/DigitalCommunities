@@ -49,3 +49,58 @@ export async function getAllCommunities() {
 
   return communities;
 }
+
+export async function getIsUserMemberOfCommunity(userId:number, communityId:number) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data: userCommunities, error } = await supabase
+    .from("user_communities")
+    .select("community_id")
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Error fetching user-community relations:", error.message);
+    return false;
+  }
+
+  const communityIds = userCommunities.map(
+    (userCommunity) => userCommunity.community_id
+  );
+
+  return communityIds.includes(communityId);
+}
+
+export async function registerForCommunity(userId:number, communityId:number) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase.from("user_communities").insert([
+    { user_id: userId, community_id: communityId }
+  ]);
+  
+  if (error) {
+    console.error("Error registering for community:", error.message);
+    return false;
+  }
+
+  return true;
+}
+
+export async function unregisterFromCommunity(userId:number, communityId:number) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  const { data, error } = await supabase
+    .from("user_communities")
+    .delete()
+    .eq("user_id", userId)
+    .eq("community_id", communityId);
+
+  if (error) {
+    console.error("Error unregistering from community:", error.message);
+    return false;
+  }
+
+  return true;
+}

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 import { Community } from "@/app/types";
+import CommunityDrawer from "./communityDrawer";
 
 export default function CommunityCard({ community }: { community: Community }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,14 +27,14 @@ export default function CommunityCard({ community }: { community: Community }) {
           <CardDescription>{community.address}</CardDescription>
         </CardFooter>
       </Card>
-      {/*isOpen && (
-        <EventDrawer
+      {isOpen && (
+        <CommunityDrawer
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           setDrawer={setDrawer}
-          event={event}
+          community={community}
         />
-      )*/}
+      )}
     </div>
   );
 }

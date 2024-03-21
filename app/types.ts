@@ -1,5 +1,6 @@
 export interface Event {
     id: number;
+    image : string;
     title: string;
     description: string;
     community_id: string;
@@ -18,4 +19,5 @@ export interface Community {
   id: number;
   name: string;
   address: string;
+  description: string;
 }
